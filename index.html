@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f6ebc7" />
+  <meta name="description" content="Cardápio interativo BSB Crepes Buffet" />
+  <title>BSB Crepes Buffet | Monte seu cardápio</title>
+  <style>
+:root {
+  --cream: #f6ebc7;
+  --cream-2: #fbf4dc;
+  --wine: #970b11;
+  --wine-dark: #6f090d;
+  --ink: #3f251f;
+  --soft: rgba(111, 9, 13, 0.12);
+  --line: rgba(111, 9, 13, 0.26);
+  --white: #fffdf5;
+  --shadow: 0 18px 50px rgba(77, 45, 28, 0.10);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(255,255,255,.45), transparent 34rem),
+    var(--cream);
+  color: var(--wine-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.5;
+}
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+
+.hero {
+  max-width: 930px;
+  margin: 0 auto;
+  padding: 40px 24px 20px;
+  text-align: center;
+}
+.brand {
+  width: min(330px, 80vw);
+  max-height: 160px;
+  object-fit: cover;
+  object-position: center;
+  mix-blend-mode: multiply;
+}
+.eyebrow {
+  margin: 18px 0 8px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .34em;
+}
+h1 {
+  max-width: 760px;
+  margin: 4px auto 12px;
+  font-size: clamp(2.05rem, 6vw, 4rem);
+  line-height: 1.04;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.intro {
+  max-width: 680px;
+  margin: 0 auto;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.7;
+}
+
+.menu-shell {
+  width: min(940px, calc(100% - 28px));
+  margin: 22px auto 80px;
+}
+.menu-section, .summary-card {
+  background: rgba(255, 253, 245, 0.42);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: clamp(22px, 5vw, 44px);
+  margin: 20px 0;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(3px);
+}
+.menu-section.invalid {
+  outline: 2px solid rgba(151, 11, 17, .45);
+  outline-offset: 3px;
+}
+.section-heading, .subheading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.section-heading > div { display: flex; align-items: baseline; gap: 14px; }
+.step {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--wine);
+  border-radius: 50%;
+  font: 700 .72rem Arial, sans-serif;
+  letter-spacing: .08em;
+}
+h2 {
+  margin: 0;
+  font-size: clamp(1.55rem, 4vw, 2.45rem);
+  text-transform: uppercase;
+  letter-spacing: .11em;
+}
+h3 {
+  margin: 0 0 14px;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+}
+.rule {
+  margin: 12px 0 28px;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+.rule.small { margin: 2px 0 14px; font-size: .92rem; }
+.counter, .mini-counter {
+  flex: 0 0 auto;
+  border: 1px solid var(--wine);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font: 700 .75rem Arial, sans-serif;
+  letter-spacing: .05em;
+  background: rgba(255,255,255,.22);
+}
+.counter.complete, .mini-counter.complete { background: var(--wine); color: var(--cream-2); }
+.group { margin: 30px 0; }
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 14px;
+}
+.option {
+  position: relative;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  color: var(--wine-dark);
+  font-size: .93rem;
+  text-transform: uppercase;
+  letter-spacing: .10em;
+  transition: .16s ease;
+  user-select: none;
+}
+.option:hover { background: rgba(255,255,255,.28); border-color: var(--line); }
+.option input {
+  appearance: none;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  border: 2px solid var(--wine);
+  border-radius: 6px;
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+.option input::after {
+  content: "✓";
+  color: var(--cream-2);
+  font-family: Arial, sans-serif;
+  font-size: .8rem;
+  font-weight: 800;
+  transform: scale(0);
+  transition: .12s ease;
+}
+.option input:checked { background: var(--wine); }
+.option input:checked::after { transform: scale(1); }
+.option:has(input:checked) {
+  border-color: var(--wine);
+  background: rgba(151, 11, 17, .07);
+}
+.option.disabled { opacity: .45; }
+.section-status {
+  min-height: 22px;
+  margin: 16px 0 0;
+  color: var(--wine);
+  font: 700 .9rem Arial, sans-serif;
+}
+
+.path-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 8px 0 28px;
+  font-family: Arial, sans-serif;
+}
+.path-button {
+  border: 1px solid var(--wine);
+  background: transparent;
+  color: var(--wine-dark);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+}
+.path-button.active { background: var(--wine); color: var(--cream-2); }
+.choice-path[hidden] { display: none; }
+
+.customer-section { padding-bottom: 36px; }
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.field { display: grid; gap: 8px; font-family: Arial, Helvetica, sans-serif; }
+.field span { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.field em { font-weight: 400; text-transform: none; letter-spacing: 0; }
+.field.full { grid-column: 1 / -1; }
+.field input, .field textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1.5px solid var(--wine);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 12px 2px;
+  outline: none;
+}
+.field textarea { resize: vertical; }
+.field input:focus, .field textarea:focus { border-bottom-width: 3px; }
+
+.summary-card {
+  background: var(--wine-dark);
+  color: var(--cream-2);
+  border-color: transparent;
+}
+.summary-card h2 { color: var(--cream-2); }
+.summary-content {
+  margin: 26px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.summary-block {
+  border: 1px solid rgba(246,235,199,.28);
+  border-radius: 14px;
+  padding: 16px;
+}
+.summary-block h4 {
+  margin: 0 0 8px;
+  font: 700 .78rem Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .10em;
+}
+.summary-block p, .summary-block ul { margin: 0; color: #fff8e6; }
+.summary-block ul { padding-left: 18px; }
+.empty-summary { opacity: .8; }
+.actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+.actions button {
+  border-radius: 999px;
+  padding: 13px 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  border: 1px solid var(--cream-2);
+}
+.secondary { background: transparent; color: var(--cream-2); }
+.whatsapp { background: var(--cream-2); color: var(--wine-dark); }
+.whatsapp:hover { transform: translateY(-1px); }
+.privacy-note { margin: 14px 0 0; opacity: .72; font: .8rem Arial, sans-serif; }
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translate(-50%, 20px);
+  max-width: min(92vw, 560px);
+  background: #2b201b;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.22);
+  font-family: Arial, sans-serif;
+  opacity: 0;
+  pointer-events: none;
+  transition: .2s ease;
+  z-index: 50;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+footer { text-align: center; padding: 0 20px 50px; letter-spacing: .18em; font-size: .8rem; }
+
+@media (max-width: 720px) {
+  .hero { padding-top: 24px; }
+  .menu-shell { width: min(100% - 16px, 940px); }
+  .menu-section, .summary-card { border-radius: 18px; }
+  .options, .summary-content, .details-grid { grid-template-columns: 1fr; }
+  .field.full { grid-column: auto; }
+  .section-heading { align-items: flex-start; }
+  .section-heading > div { gap: 9px; }
+  h2 { letter-spacing: .07em; }
+  .option { letter-spacing: .075em; }
+  .actions { flex-direction: column-reverse; }
+  .actions button { width: 100%; }
+}
+
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <img class="brand" src="data:image/png;base64,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" alt="BSB Crepes Buffet" />
+    <p class="eyebrow">PROPOSTA PARA CLIENTE</p>
+    <h1>Monte o cardápio do seu evento</h1>
+    <p class="intro">Selecione as opções desejadas. O cardápio avisa os limites de cada etapa e, no final, prepara sua escolha para envio pelo WhatsApp.</p>
+  </header>
+
+  <main class="menu-shell" id="menu">
+    <section class="menu-section" data-section="entradas" data-rule="exact" data-max="14">
+      <div class="section-heading">
+        <div>
+          <span class="step">01</span>
+          <h2>Entradas</h2>
+        </div>
+        <span class="counter" id="entradas-counter">0 de 14</span>
+      </div>
+      <p class="rule">Escolha 14 opções de entradas, incluindo quentes e frios.</p>
+
+      <div class="group">
+        <h3>Canapés</h3>
+        <div class="options" data-group="Entradas">
+          <label class="option"><input type="checkbox" name="entrada" value="Uvas passas"><span>Uvas passas</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Salaminho"><span>Salaminho</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Kani"><span>Kani</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Mini salada caprese"><span>Mini salada caprese</span></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Tarteletes</h3>
+        <div class="options" data-group="Entradas">
+          <label class="option"><input type="checkbox" name="entrada" value="Creme de carne seca"><span>Creme de carne seca</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Creme de catupiry com frango"><span>Creme de catupiry com frango</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Berinjela com ervas"><span>Berinjela com ervas</span></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Salgados fritos</h3>
+        <div class="options" data-group="Entradas">
+          <label class="option"><input type="checkbox" name="entrada" value="Bolinho de carne seca com mandioca"><span>Bolinho de carne seca com mandioca</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Bolinho de carne com abóbora"><span>Bolinho de carne com abóbora</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Bolinho de queijo"><span>Bolinho de queijo</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Bolinho de cheddar"><span>Bolinho de cheddar</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Bolinho de queijo com azeitona"><span>Bolinho de queijo com azeitona</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Coxinha de frango"><span>Coxinha de frango</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Coxinha de peito de peru"><span>Coxinha de peito de peru</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Kibe"><span>Kibe</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Kibe com catupiry"><span>Kibe com catupiry</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Risole de milho"><span>Risole de milho</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Surpresa de calabresa"><span>Surpresa de calabresa</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Surpresa napolitana"><span>Surpresa napolitana</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Churros de doce de leite"><span>Churros de doce de leite</span></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Salgados folheados</h3>
+        <div class="options" data-group="Entradas">
+          <label class="option"><input type="checkbox" name="entrada" value="Frango"><span>Frango</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Calabresa"><span>Calabresa</span></label>
+          <label class="option"><input type="checkbox" name="entrada" value="Maçã com canela"><span>Maçã com canela</span></label>
+        </div>
+      </div>
+      <p class="section-status" aria-live="polite"></p>
+    </section>
+
+    <section class="menu-section" data-section="empratado">
+      <div class="section-heading"><div><span class="step">02</span><h2>Mini empratado quente</h2></div></div>
+      <p class="rule">Escolha uma opção.</p>
+      <div class="options single-choice" data-group="Mini empratado">
+        <label class="option"><input type="radio" name="empratado" value="Fricassê de frango"><span>Fricassê de frango</span></label>
+        <label class="option"><input type="radio" name="empratado" value="Alcatra com arroz piamontese"><span>Alcatra com arroz piamontese</span></label>
+        <label class="option"><input type="radio" name="empratado" value="Penne à 4 queijos"><span>Penne à 4 queijos</span></label>
+      </div>
+      <p class="section-status" aria-live="polite"></p>
+    </section>
+
+    <section class="menu-section" data-section="carne-branca">
+      <div class="section-heading"><div><span class="step">03</span><h2>Prato principal — carne branca</h2></div></div>
+      <p class="rule">Escolha uma carne branca e um molho.</p>
+      <div class="group">
+        <h3>Opções de carne branca</h3>
+        <div class="options single-choice" data-group="Carne branca">
+          <label class="option"><input type="radio" name="carne_branca" value="Filé de peito grelhado"><span>Filé de peito grelhado</span></label>
+          <label class="option"><input type="radio" name="carne_branca" value="Medalhão de frango"><span>Medalhão de frango</span></label>
+          <label class="option"><input type="radio" name="carne_branca" value="Filé de peito de frango recheado com damasco e cream cheese"><span>Filé de peito de frango recheado com damasco e cream cheese</span></label>
+          <label class="option"><input type="radio" name="carne_branca" value="Crosta de frango recheada com cheddar e brócolis"><span>Crosta de frango recheada com cheddar e brócolis</span></label>
+        </div>
+      </div>
+      <div class="group">
+        <h3>Molhos para carne branca</h3>
+        <div class="options single-choice" data-group="Molho da carne branca">
+          <label class="option"><input type="radio" name="molho_branca" value="Gorgonzola"><span>Gorgonzola</span></label>
+          <label class="option"><input type="radio" name="molho_branca" value="Ervas finas"><span>Ervas finas</span></label>
+          <label class="option"><input type="radio" name="molho_branca" value="Vinho branco com alcaparras"><span>Vinho branco com alcaparras</span></label>
+          <label class="option"><input type="radio" name="molho_branca" value="Tomate seco com parmesão"><span>Tomate seco com parmesão</span></label>
+        </div>
+      </div>
+      <p class="section-status" aria-live="polite"></p>
+    </section>
+
+    <section class="menu-section" data-section="carne-vermelha">
+      <div class="section-heading"><div><span class="step">04</span><h2>Prato principal — segunda carne</h2></div></div>
+      <p class="rule">Escolha uma opção de carne vermelha com um molho <strong>ou</strong> uma opção tradicional.</p>
+
+      <div class="path-switch" role="group" aria-label="Tipo da segunda carne">
+        <button type="button" class="path-button active" data-path="vermelha">Carne vermelha</button>
+        <span>ou</span>
+        <button type="button" class="path-button" data-path="tradicional">Tradicional</button>
+      </div>
+
+      <div id="path-vermelha" class="choice-path active">
+        <div class="group">
+          <h3>Opções de carne vermelha</h3>
+          <div class="options single-choice" data-group="Carne vermelha">
+            <label class="option"><input type="radio" name="carne_vermelha" value="Medalhão de filé"><span>Medalhão de filé</span></label>
+            <label class="option"><input type="radio" name="carne_vermelha" value="Filé mignon"><span>Filé mignon</span></label>
+            <label class="option"><input type="radio" name="carne_vermelha" value="Filé mignon trufado"><span>Filé mignon trufado</span></label>
+          </div>
+        </div>
+        <div class="group">
+          <h3>Molhos para carne vermelha</h3>
+          <div class="options single-choice" data-group="Molho da carne vermelha">
+            <label class="option"><input type="radio" name="molho_vermelha" value="Powvre"><span>Powvre</span></label>
+            <label class="option"><input type="radio" name="molho_vermelha" value="Mostarda l’ancienne"><span>Mostarda l’ancienne</span></label>
+            <label class="option"><input type="radio" name="molho_vermelha" value="Vinho tinto"><span>Vinho tinto</span></label>
+            <label class="option"><input type="radio" name="molho_vermelha" value="Gorgonzola"><span>Gorgonzola</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div id="path-tradicional" class="choice-path" hidden>
+        <div class="group">
+          <h3>Opções tradicionais</h3>
+          <div class="options single-choice" data-group="Carne tradicional">
+            <label class="option"><input type="radio" name="tradicional" value="Alcatra assada ou grelhada"><span>Alcatra assada ou grelhada</span></label>
+            <label class="option"><input type="radio" name="tradicional" value="Maminha assada"><span>Maminha assada</span></label>
+            <label class="option"><input type="radio" name="tradicional" value="Lagarto com e sem recheio"><span>Lagarto com e sem recheio</span></label>
+          </div>
+        </div>
+      </div>
+      <p class="section-status" aria-live="polite"></p>
+    </section>
+
+    <section class="menu-section" data-section="guarnicoes">
+      <div class="section-heading"><div><span class="step">05</span><h2>Guarnições</h2></div></div>
+
+      <div class="group" data-exact-group="arroz" data-exact-count="2">
+        <div class="subheading-row"><h3>Opções de arroz</h3><span class="mini-counter" id="arroz-counter">0 de 2</span></div>
+        <p class="rule small">Escolha duas opções.</p>
+        <div class="options" data-group="Arroz">
+          <label class="option"><input type="checkbox" name="arroz" value="Brócolis"><span>Brócolis</span></label>
+          <label class="option"><input type="checkbox" name="arroz" value="Castanha de caju"><span>Castanha de caju</span></label>
+          <label class="option"><input type="checkbox" name="arroz" value="À grega"><span>À grega</span></label>
+          <label class="option"><input type="checkbox" name="arroz" value="Branco"><span>Branco</span></label>
+        </div>
+      </div>
+
+      <div class="group" data-exact-group="salada" data-exact-count="2">
+        <div class="subheading-row"><h3>Opções de salada</h3><span class="mini-counter" id="salada-counter">0 de 2</span></div>
+        <p class="rule small">Escolha duas saladas.</p>
+        <div class="options" data-group="Saladas">
+          <label class="option"><input type="checkbox" name="salada" value="Salpicão crocante"><span>Salpicão crocante</span></label>
+          <label class="option"><input type="checkbox" name="salada" value="Caesar"><span>Caesar</span></label>
+          <label class="option"><input type="checkbox" name="salada" value="Tropical"><span>Tropical</span></label>
+          <label class="option"><input type="checkbox" name="salada" value="Salada de legumes fria"><span>Salada de legumes fria</span></label>
+          <label class="option"><input type="checkbox" name="salada" value="Salada mix de folhas nobres"><span>Salada mix de folhas nobres</span></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Molho da salada</h3>
+        <p class="rule small">Escolha um molho.</p>
+        <div class="options single-choice" data-group="Molho da salada">
+          <label class="option"><input type="radio" name="molho_salada" value="Mel com mostarda"><span>Mel com mostarda</span></label>
+          <label class="option"><input type="radio" name="molho_salada" value="Ervas"><span>Ervas</span></label>
+        </div>
+      </div>
+      <p class="section-status" aria-live="polite"></p>
+    </section>
+
+    <section class="menu-section" data-section="acompanhamentos">
+      <div class="section-heading"><div><span class="step">06</span><h2>Acompanhamentos</h2></div></div>
+      <p class="rule">Escolha um acompanhamento e um molho.</p>
+      <div class="group">
+        <h3>Opções de acompanhamentos</h3>
+        <div class="options single-choice" data-group="Acompanhamento">
+          <label class="option"><input type="radio" name="acompanhamento" value="Batata rúsitca"><span>Batata rúsitca</span></label>
+          <label class="option"><input type="radio" name="acompanhamento" value="Legumes mistos"><span>Legumes mistos</span></label>
+          <label class="option"><input type="radio" name="acompanhamento" value="Penne"><span>Penne</span></label>
+          <label class="option"><input type="radio" name="acompanhamento" value="Talharim"><span>Talharim</span></label>
+          <label class="option"><input type="radio" name="acompanhamento" value="Purê de batata"><span>Purê de batata</span></label>
+          <label class="option"><input type="radio" name="acompanhamento" value="Batata gratinada com bacon e queijo"><span>Batata gratinada com bacon e queijo</span></label>
+        </div>
+      </div>
+      <div class="group">
+        <h3>Opções de molhos</h3>
+        <div class="options single-choice" data-group="Molho do acompanhamento">
+          <label class="option"><input type="radio" name="molho_acompanhamento" value="Pesto"><span>Pesto</span></label>
+          <label class="option"><input type="radio" name="molho_acompanhamento" value="Sugo"><span>Sugo</span></label>
+          <label class="option"><input type="radio" name="molho_acompanhamento" value="Ervas"><span>Ervas</span></label>
+          <label class="option"><input type="radio" name="molho_acompanhamento" value="Branco"><span>Branco</span></label>
+        </div>
+      </div>
+      <p class="section-status" aria-live="polite"></p>
+    </section>
+
+    <section class="menu-section customer-section" data-section="cliente">
+      <div class="section-heading"><div><span class="step">07</span><h2>Dados do evento</h2></div></div>
+      <p class="rule">Só o necessário para identificar o pedido.</p>
+      <div class="details-grid">
+        <label class="field"><span>Nome do cliente</span><input id="cliente" type="text" autocomplete="name" placeholder="Ex.: Maria Silva" /></label>
+        <label class="field"><span>Data do evento</span><input id="data-evento" type="date" /></label>
+        <label class="field"><span>Quantidade de convidados</span><input id="convidados" type="number" min="1" inputmode="numeric" placeholder="Ex.: 80" /></label>
+        <label class="field full"><span>Observações <em>(opcional)</em></span><textarea id="observacoes" rows="3" placeholder="Ex.: restrições, horário, endereço a confirmar..."></textarea></label>
+      </div>
+      <p class="section-status" aria-live="polite"></p>
+    </section>
+
+    <section class="summary-card" id="resumo">
+      <p class="eyebrow">SEU CARDÁPIO</p>
+      <h2>Resumo do pedido</h2>
+      <div id="summary-content" class="summary-content"><p class="empty-summary">Suas escolhas vão aparecer aqui.</p></div>
+      <div class="actions">
+        <button class="secondary" id="limpar" type="button">Limpar escolhas</button>
+        <button class="whatsapp" id="enviar" type="button">Enviar pelo WhatsApp</button>
+      </div>
+      <p class="privacy-note">O site não envia seus dados para nenhum servidor. Ao confirmar, ele apenas abre o WhatsApp com a mensagem pronta.</p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <footer>BSB Crepes Buffet</footer>
+  <script>
+// Troque somente este número quando quiser mudar o WhatsApp que recebe os pedidos.
+// Formato: código do país + DDD + número, somente dígitos.
+const WHATSAPP_NUMBER = "5561993579952";
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const STORAGE_KEY = "bsb-crepes-cardapio-v1";
+let selectedPath = "vermelha";
+
+const stateFields = ["cliente", "data-evento", "convidados", "observacoes"];
+
+function checkedValues(name) {
+  return $$(`input[name="${name}"]:checked`).map(el => el.value);
+}
+
+function checkedValue(name) {
+  return $(`input[name="${name}"]:checked`)?.value || "";
+}
+
+function setCounter(name, count, max, id) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = `${count} de ${max}`;
+  el.classList.toggle("complete", count === max);
+}
+
+function enforceCheckboxLimit(name, max, changedInput) {
+  const checked = checkedValues(name);
+  if (checked.length > max) {
+    changedInput.checked = false;
+    showToast(`Você pode escolher no máximo ${max} opções nesta etapa.`);
+  }
+}
+
+function updateLimits() {
+  const entradas = checkedValues("entrada");
+  setCounter("entrada", entradas.length, 14, "#entradas-counter");
+  $$('input[name="entrada"]:not(:checked)').forEach(i => {
+    i.disabled = entradas.length >= 14;
+    i.closest(".option")?.classList.toggle("disabled", i.disabled);
+  });
+
+  for (const [name, max, id] of [["arroz", 2, "#arroz-counter"], ["salada", 2, "#salada-counter"]]) {
+    const values = checkedValues(name);
+    setCounter(name, values.length, max, id);
+    $$(`input[name="${name}"]:not(:checked)`).forEach(i => {
+      i.disabled = values.length >= max;
+      i.closest(".option")?.classList.toggle("disabled", i.disabled);
+    });
+  }
+}
+
+function clearOtherPath(path) {
+  if (path === "vermelha") {
+    $$('input[name="tradicional"]').forEach(i => i.checked = false);
+  } else {
+    $$('input[name="carne_vermelha"], input[name="molho_vermelha"]').forEach(i => i.checked = false);
+  }
+}
+
+function switchPath(path, shouldSave = true) {
+  selectedPath = path;
+  $$(".path-button").forEach(btn => btn.classList.toggle("active", btn.dataset.path === path));
+  $("#path-vermelha").hidden = path !== "vermelha";
+  $("#path-tradicional").hidden = path !== "tradicional";
+  clearOtherPath(path);
+  updateSummary();
+  if (shouldSave) saveState();
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const [y, m, d] = value.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function getSummaryData() {
+  return {
+    entradas: checkedValues("entrada"),
+    empratado: checkedValue("empratado"),
+    carneBranca: checkedValue("carne_branca"),
+    molhoBranca: checkedValue("molho_branca"),
+    path: selectedPath,
+    carneVermelha: checkedValue("carne_vermelha"),
+    molhoVermelha: checkedValue("molho_vermelha"),
+    tradicional: checkedValue("tradicional"),
+    arroz: checkedValues("arroz"),
+    saladas: checkedValues("salada"),
+    molhoSalada: checkedValue("molho_salada"),
+    acompanhamento: checkedValue("acompanhamento"),
+    molhoAcompanhamento: checkedValue("molho_acompanhamento"),
+    cliente: $("#cliente").value.trim(),
+    dataEvento: $("#data-evento").value,
+    convidados: $("#convidados").value.trim(),
+    observacoes: $("#observacoes").value.trim()
+  };
+}
+
+function block(title, content) {
+  if (!content || (Array.isArray(content) && !content.length)) return "";
+  const body = Array.isArray(content)
+    ? `<ul>${content.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`
+    : `<p>${escapeHtml(content)}</p>`;
+  return `<div class="summary-block"><h4>${escapeHtml(title)}</h4>${body}</div>`;
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+}
+
+function updateSummary() {
+  const d = getSummaryData();
+  const secondMeat = d.path === "vermelha"
+    ? [d.carneVermelha, d.molhoVermelha].filter(Boolean).join(" — Molho: ")
+    : d.tradicional;
+
+  const html = [
+    block("Cliente", [d.cliente, d.dataEvento ? `Evento: ${formatDate(d.dataEvento)}` : "", d.convidados ? `${d.convidados} convidados` : ""].filter(Boolean)),
+    block("Entradas", d.entradas),
+    block("Mini empratado", d.empratado),
+    block("Carne branca", [d.carneBranca, d.molhoBranca ? `Molho: ${d.molhoBranca}` : ""].filter(Boolean)),
+    block(d.path === "vermelha" ? "Carne vermelha" : "Carne tradicional", secondMeat),
+    block("Arroz", d.arroz),
+    block("Saladas", d.saladas),
+    block("Molho da salada", d.molhoSalada),
+    block("Acompanhamento", [d.acompanhamento, d.molhoAcompanhamento ? `Molho: ${d.molhoAcompanhamento}` : ""].filter(Boolean)),
+    block("Observações", d.observacoes)
+  ].filter(Boolean).join("");
+
+  $("#summary-content").innerHTML = html || '<p class="empty-summary">Suas escolhas vão aparecer aqui.</p>';
+}
+
+function setStatus(section, message = "") {
+  const root = $(`[data-section="${section}"]`);
+  root?.classList.toggle("invalid", Boolean(message));
+  const status = $(".section-status", root);
+  if (status) status.textContent = message;
+}
+
+function validate() {
+  const d = getSummaryData();
+  const errors = [];
+  const add = (section, message) => { errors.push({section, message}); setStatus(section, message); };
+  ["entradas","empratado","carne-branca","carne-vermelha","guarnicoes","acompanhamentos","cliente"].forEach(s => setStatus(s, ""));
+
+  if (d.entradas.length !== 14) add("entradas", `Escolha exatamente 14 entradas. Você selecionou ${d.entradas.length}.`);
+  if (!d.empratado) add("empratado", "Escolha 1 mini empratado quente.");
+  if (!d.carneBranca || !d.molhoBranca) add("carne-branca", "Escolha 1 carne branca e 1 molho.");
+  if (d.path === "vermelha" && (!d.carneVermelha || !d.molhoVermelha)) add("carne-vermelha", "Escolha 1 carne vermelha e 1 molho, ou selecione a opção Tradicional.");
+  if (d.path === "tradicional" && !d.tradicional) add("carne-vermelha", "Escolha 1 opção de carne tradicional.");
+  if (d.arroz.length !== 2 || d.saladas.length !== 2 || !d.molhoSalada) add("guarnicoes", "Escolha 2 opções de arroz, 2 saladas e 1 molho.");
+  if (!d.acompanhamento || !d.molhoAcompanhamento) add("acompanhamentos", "Escolha 1 acompanhamento e 1 molho.");
+  if (!d.cliente || !d.dataEvento || !d.convidados) add("cliente", "Preencha nome, data do evento e quantidade de convidados.");
+
+  return errors;
+}
+
+function toWhatsAppMessage(d) {
+  const lines = [
+    "*BSB CREPES — SELEÇÃO DE CARDÁPIO*",
+    "",
+    `*Cliente:* ${d.cliente}`,
+    `*Data do evento:* ${formatDate(d.dataEvento)}`,
+    `*Convidados:* ${d.convidados}`,
+    "",
+    "*ENTRADAS (14)*",
+    ...d.entradas.map(x => `✓ ${x}`),
+    "",
+    `*MINI EMPRATADO:* ${d.empratado}`,
+    "",
+    `*CARNE BRANCA:* ${d.carneBranca}`,
+    `*Molho:* ${d.molhoBranca}`,
+    "",
+    d.path === "vermelha" ? `*CARNE VERMELHA:* ${d.carneVermelha}` : `*CARNE TRADICIONAL:* ${d.tradicional}`,
+    ...(d.path === "vermelha" ? [`*Molho:* ${d.molhoVermelha}`] : []),
+    "",
+    "*ARROZ*",
+    ...d.arroz.map(x => `✓ ${x}`),
+    "",
+    "*SALADAS*",
+    ...d.saladas.map(x => `✓ ${x}`),
+    `*Molho da salada:* ${d.molhoSalada}`,
+    "",
+    `*ACOMPANHAMENTO:* ${d.acompanhamento}`,
+    `*Molho:* ${d.molhoAcompanhamento}`,
+    ...(d.observacoes ? ["", `*Observações:* ${d.observacoes}`] : [])
+  ];
+  return lines.join("\n");
+}
+
+function showToast(message) {
+  const toast = $("#toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+function saveState() {
+  const data = {path: selectedPath, fields: {}, checked: []};
+  $$('input[type="checkbox"], input[type="radio"]').forEach(i => { if (i.checked) data.checked.push({name: i.name, value: i.value}); });
+  stateFields.forEach(id => data.fields[id] = $(`#${id}`).value);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadState() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!data) return;
+    switchPath(data.path || "vermelha", false);
+    (data.checked || []).forEach(item => {
+      const input = $$(`input[name="${item.name}"]`).find(i => i.value === item.value);
+      if (input) input.checked = true;
+    });
+    stateFields.forEach(id => { if (data.fields?.[id] != null) $(`#${id}`).value = data.fields[id]; });
+  } catch (_) {}
+}
+
+function clearAll() {
+  $$('input[type="checkbox"], input[type="radio"]').forEach(i => { i.checked = false; i.disabled = false; i.closest(".option")?.classList.remove("disabled"); });
+  stateFields.forEach(id => $(`#${id}`).value = "");
+  ["entradas","empratado","carne-branca","carne-vermelha","guarnicoes","acompanhamentos","cliente"].forEach(s => setStatus(s, ""));
+  switchPath("vermelha", false);
+  localStorage.removeItem(STORAGE_KEY);
+  updateLimits();
+  updateSummary();
+  showToast("Escolhas apagadas.");
+}
+
+$$('input[type="checkbox"]').forEach(input => {
+  input.addEventListener("change", () => {
+    if (input.name === "entrada") enforceCheckboxLimit("entrada", 14, input);
+    if (input.name === "arroz") enforceCheckboxLimit("arroz", 2, input);
+    if (input.name === "salada") enforceCheckboxLimit("salada", 2, input);
+    updateLimits(); updateSummary(); saveState();
+  });
+});
+
+$$('input[type="radio"]').forEach(input => input.addEventListener("change", () => { updateSummary(); saveState(); }));
+stateFields.forEach(id => $(`#${id}`).addEventListener("input", () => { updateSummary(); saveState(); }));
+$$(".path-button").forEach(btn => btn.addEventListener("click", () => switchPath(btn.dataset.path)));
+$("#limpar").addEventListener("click", clearAll);
+
+$("#enviar").addEventListener("click", () => {
+  const errors = validate();
+  if (errors.length) {
+    const first = $(`[data-section="${errors[0].section}"]`);
+    first?.scrollIntoView({behavior:"smooth", block:"center"});
+    showToast(errors[0].message);
+    return;
+  }
+  const message = toWhatsAppMessage(getSummaryData());
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+});
+
+loadState();
+updateLimits();
+updateSummary();
+
+  </script>
+</body>
+</html>
